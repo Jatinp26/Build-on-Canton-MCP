@@ -9,7 +9,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // remote KB config
-const KNOWLEDGE_BASE_URL = "https://raw.githubusercontent.com/canton-network/canton-mcp-server/main/knowledge-base.json";
+const KNOWLEDGE_BASE_URL = "https://raw.githubusercontent.com/Jatinp26/Build-on-Canton-MCP/refs/heads/main/knowledge-base.json";
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 const CACHE_DIR = join(homedir(), ".canton-mcp");
 const CACHE_FILE = join(CACHE_DIR, "knowledge-cache.json");
