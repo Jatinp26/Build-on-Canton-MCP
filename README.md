@@ -15,7 +15,7 @@ Add to your Claude Desktop config (`../Claude/claude_desktop_config.json`):
   "mcpServers": {
     "canton-dev": {
       "command": "node",
-      "args": ["/path/to/canton-mcp-server/src/index.js"]
+      "args": ["/path/to/Build-on-Canton-MCP/index.js"]
     }
   }
 }
