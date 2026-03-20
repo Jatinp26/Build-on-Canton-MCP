@@ -1,0 +1,884 @@
+{
+  "_version": "1.1.0",
+  "_updatedAt": "2026-03",
+  "_updatedBy": "Jatin, DevRel, Canton Foundation",
+  "Note": "This is JSON is enhanced by AI to provide structured data for the Canton MCP server. Kindly maintain the same structure and formatting when updating.",
+
+  "DEPRECATED": [
+    {
+      "name": "Daml Assistant (daml-assistant)",
+      "replacement": "Digital Asset Package Manager (DPM)",
+      "note": "daml-assistant is ONLY for legacy Splice 0.4.x / Canton 3.3. For Canton 3.4+ / Splice 0.5.0+, always use DPM.",
+      "installReplacement": "Mac/Linux: curl https://get.digitalasset.com/install/install.sh | sh\nWindows: Download the Windows installer from the DPM docs.",
+      "since": "Canton 3.4 / Splice 0.5.0"
+    },
+    {
+      "name": "@daml/ledger",
+      "replacement": "@c7/ledger",
+      "note": "@daml/ledger is deprecated. Use community-maintained @c7/ledger.",
+      "since": "Canton 3.3+"
+    },
+    {
+      "name": "@daml/react",
+      "replacement": "@c7/react",
+      "note": "@daml/react is deprecated. Use community-maintained @c7/react.",
+      "since": "Canton 3.3+"
+    },
+    {
+      "name": "Daml Hub",
+      "replacement": "Self-hosted Canton Sandbox / LocalNet / DevNet",
+      "note": "Daml Hub has been discontinued. Use Canton Sandbox for local dev, CN Quickstart LocalNet, or DevNet/TestNet.",
+      "since": "2024"
+    },
+    {
+      "name": "daml start",
+      "replacement": "dpm sandbox + dpm build + Ledger API",
+      "note": "'daml start' is legacy. Use 'dpm sandbox' for local ledger, 'dpm build' to compile, JSON/gRPC API for upload/allocate.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "daml build",
+      "replacement": "dpm build",
+      "note": "Use 'dpm build' to compile. 'dpm build --all' for multi-package projects.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "daml test",
+      "replacement": "dpm test",
+      "note": "Use 'dpm test' for Daml Script tests. 'dpm test --files <file>' for specific files.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "daml new",
+      "replacement": "dpm new",
+      "note": "Use 'dpm new <name>' or 'dpm new <name> --template <t>' for templates like daml-intro-compose.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "Navigator",
+      "replacement": "JSON Ledger API + custom frontend",
+      "note": "Navigator is discontinued. Build frontends using the JSON Ledger API (port 7575) or gRPC API.",
+      "since": "Canton 3.0+"
+    },
+    {
+      "name": "Daml Triggers",
+      "replacement": "Backend automation via Ledger API",
+      "note": "Daml Triggers deprecated. Implement automation in your backend using gRPC/JSON Ledger API update stream.",
+      "since": "Canton 3.0+"
+    },
+    {
+      "name": "daml ledger upload-dar",
+      "replacement": "JSON / gRPC Ledger API or Declarative API",
+      "note": "Use JSON Ledger API or gRPC PackageService to upload DARs.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "daml ledger allocate-parties",
+      "replacement": "POST /v2/parties/allocate on JSON Ledger API",
+      "note": "Use the JSON Ledger API (port 7575) or gRPC PartyManagementService.",
+      "since": "Canton 3.4"
+    },
+    {
+      "name": "splice-wallet-payments subscription",
+      "replacement": "Token Standard (CIP-0056) DVP workflows",
+      "note": "CC subscription workflow in splice-wallet-payments is deprecated. Use token standard DVP workflows.",
+      "since": "Splice 0.4+"
+    },
+    {
+      "name": "prune_to_offset (PQS SQL function)",
+      "replacement": "prune_archived_to_offset()",
+      "note": "Deprecated since 3.5.0. Known to cause deadlocks and performance bottlenecks.",
+      "since": "Canton 3.5"
+    }
+  ],
+  "TOOLS": {
+    "dpm": {
+      "name": "Digital Asset Package Manager (DPM)",
+      "description": "Primary CLI for all Canton/Daml development. Drop-in replacement for deprecated daml-assistant. Runs on Windows, macOS, Linux. Requires JDK 17+ and VS Code.",
+      "install": "Mac/Linux: curl https://get.digitalasset.com/install/install.sh | sh\nWindows: Download Windows installer from DPM docs.\nInstall dir: ${HOME}/.dpm/ (Mac/Linux) or %APPDATA%/.dpm/ (Windows).\nSet DPM_HOME to customize.",
+      "verify": "dpm version --active",
+      "commands": {
+        "dpm new <n>": "Create new Daml project from template",
+        "dpm new <n> --template <t>": "Create from specific template (daml-intro-compose, daml-intro-test, json-tests, etc.)",
+        "dpm build": "Compile Daml project into DAR file (.daml/dist/<n>-<ver>.dar)",
+        "dpm build --all": "Build all packages in multi-package project (topological order)",
+        "dpm test": "Run all Daml Script tests",
+        "dpm test --files <file>": "Test specific file",
+        "dpm sandbox": "Start Canton sandbox (JSON API on 7575, gRPC on 6866)",
+        "dpm sandbox -c config.conf": "Sandbox with custom config",
+        "dpm damlc inspect-dar <f>": "Inspect DAR contents and package hashes",
+        "dpm damlc inspect-dar --json <f>": "Machine-readable DAR inspection (main_package_id)",
+        "dpm clean": "Remove build artifacts",
+        "dpm studio": "Launch Daml Studio (VS Code)",
+        "dpm codegen-java": "Java code generation",
+        "dpm codegen-js": "JavaScript/TypeScript code generation",
+        "dpm codegen-alpha-typescript": "TypeScript codegen (alpha)",
+        "dpm pqs": "Participant Query Store",
+        "dpm docs": "Generate Daml doc comments",
+        "dpm validate-dar <f>": "Validate DAR archive",
+        "dpm install <ver>": "Install specific SDK version"
+      },
+      "config": "daml.yaml (per-package), multi-package.yaml (multi-package builds), ${DPM_HOME}/dpm-config.yaml (global). Supports ${ENV_VAR} interpolation. Env overrides: DPM_SDK_VERSION, DPM_REGISTRY, DPM_LOG_LEVEL, DAML_PACKAGE.",
+      "docs": "https://docs.digitalasset.com/build/3.4/tools/dpm"
+    },
+    "canton_sandbox": {
+      "name": "Canton Sandbox",
+      "description": "Local Canton ledger. Start via 'dpm sandbox'. JSON API port 7575, gRPC port 6866.",
+      "docs": "https://docs.digitalasset.com/build/3.4/tools/canton-sandbox"
+    },
+    "create_canton_app": {
+      "name": "create-canton-app",
+      "description": "Canton Foundation CLI scaffolding: npx create-canton-app@latest my-app. Auto-detects SDK. Token, Escrow, Empty templates.",
+      "install": "npx create-canton-app@latest my-app",
+      "docs": "https://www.npmjs.com/package/create-canton-app",
+      "source": "Canton Foundation"
+    },
+    "canton_playbox": {
+      "name": "Canton Playbox",
+      "description": "Browser-based Daml IDE. 20+ templates, auto-save, no install. Best for first exploration.",
+      "url": "https://playbox.canton.network",
+      "source": "Canton Foundation"
+    },
+    "vscode_daml": {
+      "name": "Daml VS Code Extension",
+      "description": "Syntax highlighting, inline script results, error checking, code coverage. Launch: dpm studio.",
+      "install": "Search 'Daml' in VS Code Extensions or run 'dpm studio'",
+      "docs": "https://docs.digitalasset.com/build/3.4/tools/visual-studio-code"
+    },
+    "pqs": {
+      "name": "Participant Query Store (PQS)",
+      "description": "Ingests ledger data into PostgreSQL for SQL querying. Executable: 'scribe'. Enables SQL on Daml ledger state (contracts) and history (events). Point-in-time queries, party/template filtering, JSONB columns.",
+      "install": "dpm install <version> (includes scribe.jar)\nLocate: dpm resolve | grep scribe\nDocker: europe-docker.pkg.dev/da-images/public/docker/participant-query-store:<version>",
+      "commands": {
+        "scribe pipeline ledger postgres-document": "Main pipeline command",
+        "--pipeline-filter-parties 'Alice::*'": "Filter by party",
+        "--pipeline-ledger-start Latest": "Start from latest (skip history)",
+        "--source-ledger-host/port": "Participant gRPC connection (default 6865)",
+        "--target-postgres-host/port/database": "PostgreSQL connection"
+      },
+      "requirements": "PQS: 4GB RAM, 4 CPU. PostgreSQL: 8GB RAM, 8 CPU. JDK 17+. Tune PostgreSQL (default Docker config is inadequate).",
+      "security": "Only canReadAs/readAsAnyParty needed. No actAs or admin access. Restrict DB users to minimum privileges.",
+      "docs": "https://docs.digitalasset.com/build/3.4/tools/pqs"
+    },
+    "daml_shell": {
+      "name": "Daml Shell",
+      "description": "Interactive Daml exploration tool. Connects to PQS PostgreSQL database by default. Part of CN Quickstart modules.",
+      "docs": "https://docs.digitalasset.com/build/3.4/tools/daml-shell"
+    }
+  },
+  "DOCS": {
+    "main": {
+      "title": "Canton App Dev Docs (v3.4)",
+      "url": "https://docs.digitalasset.com/build/3.4/overview/introduction.html",
+      "description": "Main entry point for Canton Network app development."
+    },
+    "tldr": {
+      "title": "TL;DR for New Developers",
+      "url": "https://docs.digitalasset.com/build/3.4/overview/tldr.html",
+      "description": "Quick-start: SDK install, Slack channels, tutorials, APIs, community tools."
+    },
+    "key_concepts": {
+      "title": "Key Concepts",
+      "url": "https://docs.digitalasset.com/build/3.4/overview/key_concepts.html",
+      "description": "Validator nodes, Daml parties, frontends/backends/Daml models."
+    },
+    "canton_foundation_docs": {
+      "title": "Canton Foundation Docs",
+      "url": "https://docs.canton.network",
+      "description": "Canton Foundation documentation portal."
+    },
+    "tutorial_json_api": {
+      "title": "Get Started: JSON Ledger API + curl",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api.html",
+      "description": "Create parties, contracts, query ledger with curl."
+    },
+    "tutorial_json_api_ts": {
+      "title": "Get Started: JSON API + TypeScript",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api_ts.html",
+      "description": "openapi-fetch client generation, Daml bindings, TypeScript."
+    },
+    "tutorial_smart_contracts": {
+      "title": "Smart Contract Development (Daml)",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/index.html",
+      "description": "Full Daml tutorial: templates, choices, signatories, observers, constraints, testing, composition, privacy."
+    },
+    "tutorial_basic_contracts": {
+      "title": "Basic Contracts",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/contracts.html",
+      "description": "Templates, with block, signatory keyword."
+    },
+    "tutorial_daml_scripts": {
+      "title": "Test with Daml Scripts",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/daml-scripts.html",
+      "description": "allocateParty, submit, createCmd, submitMustFail, archiveCmd."
+    },
+    "tutorial_choices": {
+      "title": "Choices",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/choices.html",
+      "description": "Choices as methods, controller, consuming vs nonconsuming."
+    },
+    "tutorial_parties": {
+      "title": "Parties and Authority",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/parties.html",
+      "description": "Propose-accept, signatory/observer extraction, authorization model."
+    },
+    "tutorial_constraints": {
+      "title": "Constraints",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/constraints.html",
+      "description": "ensure keyword, assert/assertMsg, time on ledger."
+    },
+    "tutorial_compose": {
+      "title": "Compose Choices",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/compose.html",
+      "description": "Multi-module projects, atomic transactions, privacy model."
+    },
+    "tutorial_testing": {
+      "title": "Test Daml Contracts",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/tests.html",
+      "description": "Multi-package testing, dpm test, trace/debug, choice coverage."
+    },
+    "tutorial_dependencies": {
+      "title": "Dependencies",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/dependencies.html",
+      "description": "DAR files, package hashes, dependencies vs data-dependencies."
+    },
+    "data_types": {
+      "title": "Daml Data Types",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/data-types.html",
+      "description": "Records, variants, Optional, ContractId, Party, Decimal."
+    },
+    "quickstart": {
+      "title": "CN Quickstart",
+      "url": "https://docs.digitalasset.com/build/3.4/quickstart/index.html",
+      "description": "Full-stack quickstart: clone, install, explore, extend."
+    },
+    "quickstart_json_api": {
+      "title": "Quickstart JSON API",
+      "url": "https://docs.digitalasset.com/build/3.4/quickstart/operate/json-api.html",
+      "description": "Advanced: OAuth2, upload DARs, create contracts on LocalNet."
+    },
+    "best_practices": {
+      "title": "Best Practices",
+      "url": "https://docs.digitalasset.com/build/3.4/sdlc-howtos/sdlc-best-practices.html",
+      "description": "SDLC: design, develop, test, deploy, operations for multi-party apps."
+    },
+    "daml_language_ref": {
+      "title": "Daml Language Reference",
+      "url": "https://docs.digitalasset.com/build/3.4/daml-language/index.html",
+      "description": "Complete Daml language reference."
+    },
+    "daml_stdlib": {
+      "title": "Daml Standard Library",
+      "url": "https://docs.digitalasset.com/build/3.4/daml-language/stdlib.html",
+      "description": "Always include daml-prim and daml-stdlib in dependencies."
+    },
+    "dpm_config": {
+      "title": "DPM Configuration",
+      "url": "https://docs.digitalasset.com/build/3.4/tools/dpm-configuration.html",
+      "description": "daml.yaml, multi-package.yaml, env var interpolation, SDK overrides."
+    },
+    "json_ledger_api": {
+      "title": "JSON Ledger API Reference",
+      "url": "https://docs.digitalasset.com/build/3.4/references/json-ledger-api.html",
+      "description": "OpenAPI/AsyncAPI specs. Port 7575. Health: /livez."
+    },
+    "grpc_ledger_api": {
+      "title": "gRPC Ledger API",
+      "url": "https://docs.digitalasset.com/build/3.4/explanations/ledger-api.html",
+      "description": "gRPC Ledger API on Participant node. Port 6866."
+    },
+    "splice_overview": {
+      "title": "Splice Overview",
+      "url": "https://docs.dev.sync.global/overview/index.html",
+      "description": "Canton Coin, CNS, Global Synchronizer governance."
+    },
+    "splice_architecture": {
+      "title": "Splice Architecture",
+      "url": "https://docs.dev.sync.global/architecture/index.html",
+      "description": "Seven Daml packages: splice-amulet (CC), splice-dso-governance, splice-wallet, etc."
+    },
+    "splice_http_apis": {
+      "title": "Splice HTTP APIs",
+      "url": "https://docs.dev.sync.global/app_dev/splice_http_apis.html",
+      "description": "Scan API (SV nodes), Validator API. OpenAPI specs."
+    },
+    "splice_daml_apis": {
+      "title": "Splice Daml APIs",
+      "url": "https://docs.dev.sync.global/app_dev/splice_daml_apis.html",
+      "description": "Token standard (CIP-0056), featured app markers (CIP-0047), WalletUserProxy."
+    },
+    "token_standard": {
+      "title": "Token Standard (CIP-0056)",
+      "url": "https://docs.dev.sync.global/app_dev/token_standard/index.html",
+      "description": "Standard APIs: holdings, FOP transfers, DVP allocations, metadata."
+    },
+    "token_standard_apis": {
+      "title": "Token Standard APIs",
+      "url": "https://docs.dev.sync.global/app_dev/token_standard/token_standard_apis.html",
+      "description": "Daml + OpenAPI refs: Metadata, Holding, Transfer, Allocation."
+    },
+    "featured_app": {
+      "title": "Featured App Rewards",
+      "url": "https://docs.dev.sync.global/app_dev/featured_app_activity_marker.html",
+      "description": "CIP-0047: earn app rewards with FeaturedAppActivityMarker."
+    },
+    "cc_transfer": {
+      "title": "CC Transfer Types",
+      "url": "https://docs.dev.sync.global/tokenomics/cc_transfer.html",
+      "description": "Legacy offer, two-step token standard, one-step TransferPreapproval. No fees (CIP-0078)."
+    },
+    "validator_docker": {
+      "title": "Validator (Docker)",
+      "url": "https://docs.dev.sync.global/validator_operator/docker_compose_validator.html",
+      "description": "Docker Compose validator. wallet.localhost, json-ledger-api.localhost."
+    },
+    "validator_k8s": {
+      "title": "Validator (Kubernetes)",
+      "url": "https://docs.dev.sync.global/validator_operator/kubernetes_validator.html",
+      "description": "Helm chart deployment. OIDC/RS256 auth."
+    },
+    "validator_onboarding": {
+      "title": "Validator Onboarding",
+      "url": "https://docs.dev.sync.global/validator_operator/onboarding.html",
+      "description": "Steps to onboard as a Canton Network validator."
+    },
+    "validator_hardware": {
+      "title": "Validator Hardware",
+      "url": "https://docs.dev.sync.global/validator_operator/hardware.html",
+      "description": "Hardware requirements for validator nodes."
+    },
+    "external_party": {
+      "title": "External Party Onboarding",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/app-dev/external_signing_onboarding.html",
+      "description": "External parties with own signing keys. Python examples."
+    },
+    "devnet": {
+      "title": "DevNet",
+      "url": "https://docs.digitalasset.com/build/3.4/network-info/devnet.html",
+      "description": "Shared dev network. Self-feature apps for testing."
+    },
+    "testnet": {
+      "title": "TestNet",
+      "url": "https://docs.digitalasset.com/build/3.4/network-info/testnet.html",
+      "description": "Stable test network. Ethereum Sepolia for bridge testing."
+    },
+    "mainnet_setup": {
+      "title": "MainNet Setup",
+      "url": "https://docs.digitalasset.com/build/3.4/network-info/mainnet.html",
+      "description": "Production. USDCx token. Kubernetes recommended."
+    },
+    "xreserve": {
+      "title": "xReserve (USDC Bridge)",
+      "url": "https://docs.digitalasset.com/build/3.4/network-info/xreserve.html",
+      "description": "Bridge USDC Ethereum->Canton. UI: https://digital-asset.github.io/xreserve-deposits/"
+    },
+    "scan_api": {
+      "title": "Scan API Discovery",
+      "url": "https://sync.global/sv-network/",
+      "description": "Find Scan API URLs for all networks."
+    },
+    "github_splice": {
+      "title": "Splice (GitHub)",
+      "url": "https://github.com/hyperledger-labs/splice",
+      "description": "Open-source: CC, CNS, governance, token standard."
+    },
+    "github_quickstart": {
+      "title": "CN Quickstart (GitHub)",
+      "url": "https://github.com/digital-asset/cn-quickstart",
+      "description": "Full-stack quickstart repo."
+    },
+    "pqs": {
+      "title": "Participant Query Store (PQS)",
+      "url": "https://docs.digitalasset.com/build/3.4/tools/pqs",
+      "description": "SQL read layer for Canton. PostgreSQL. State + audit trail. JSONB. Configure, secure, operate, optimize."
+    },
+    "tutorial_functional": {
+      "title": "Functional Programming 101 (Daml)",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/functional-101.html",
+      "description": "Functions, if/else, folds, recursion, when, pattern matching, typeclasses. Daml borrows from Haskell."
+    },
+    "tutorial_data_types": {
+      "title": "Daml Data Types",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/data.html",
+      "description": "Records, variants, Optional, enums, tuples, Eq/Show/Ord deriving, pattern matching."
+    },
+    "tutorial_stdlib": {
+      "title": "Daml Standard Library Guide",
+      "url": "https://docs.digitalasset.com/build/3.4/tutorials/smart-contracts/stdlib.html",
+      "description": "DA.List, DA.Optional, DA.Tuple, DA.Either, DA.Action, DA.Text, DA.Time, Functor, Foldable, Traversable."
+    },
+    "splice_localnet": {
+      "title": "Splice LocalNet (Docker Compose)",
+      "url": "https://docs.dev.sync.global/testing/docker_compose_localnet.html",
+      "description": "3 participants (app-provider/app-user/sv), PostgreSQL, wallet/sv/scan UIs. Dev/testing only."
+    },
+    "splice_configuring": {
+      "title": "Configuring Deployed Splice Apps",
+      "url": "https://docs.dev.sync.global/operations/configuring_apps.html",
+      "description": "HOCON config via ADDITIONAL_CONFIG_* env vars. Custom bootstrap scripts via OVERRIDE_BOOTSTRAP_SCRIPT."
+    },
+    "traffic_fees": {
+      "title": "Synchronizer Traffic Fees",
+      "url": "https://docs.dev.sync.global/tokenomics/traffic_fees.html",
+      "description": "Free tier, extraTrafficPrice USD/MB, MemberTraffic contracts, top-up mechanics."
+    },
+    "steps_in_round": {
+      "title": "Steps in a Mining Round",
+      "url": "https://docs.dev.sync.global/tokenomics/steps_in_round.html",
+      "description": "Mining round lifecycle: open, issuing, close. ~2.5 min per round."
+    },
+    "users_parties_wallets": {
+      "title": "Users, Parties, and Wallets",
+      "url": "https://docs.dev.sync.global/app_dev/users_parties_wallets.html",
+      "description": "Relationship between ledger API users, Daml parties, and Splice wallet instances."
+    },
+    "wallet_integration": {
+      "title": "Wallet/Custody/Exchange Integration",
+      "url": "https://docs.digitalasset.com/build/3.4/overview/wallet-integration.html",
+      "description": "Key differences for integrators: your node = your state, TransferPreapproval for deposits, one party per account."
+    },
+    "sv_super_validator_k8s": {
+      "title": "Super Validator Node (Kubernetes)",
+      "url": "https://docs.dev.sync.global/sv_operator/kubernetes_sv.html",
+      "description": "SV deployment: Scan, Sequencer, Mediator, CometBFT, wallet. IP whitelisting required."
+    }
+  },
+  "CONCEPTS": {
+    "what_is_canton": {
+      "title": "What is Canton Network?",
+      "summary": "Privacy-enabled blockchain for institutional use. Apps use the Canton ledger for multi-org business processes with automatic state sync and privacy. Apps compose on-ledger (atomic Daml transactions) and off-ledger (APIs). Used by Hashnote, Brale, SocGen for tokenized RWAs.",
+      "key_points": [
+        "Multi-party apps with automatic state synchronization",
+        "Privacy by design — data only shared with relevant parties",
+        "Not all apps need custom Daml — can build on other apps' code or APIs",
+        "Complementary to public blockchains — institutional privacy use cases"
+      ]
+    },
+    "privacy_model": {
+      "title": "Canton Privacy Model",
+      "summary": "Selective visibility — participants only see transactions they're party to. NO shared global state. Synchronizer nodes CANNOT decrypt payloads.",
+      "key_points": [
+        "Principle 1: Parties see actions they have a stake in",
+        "Principle 2: Every party seeing an action sees its transitive consequences",
+        "Synchronizer only sees encrypted envelopes and routing metadata",
+        "Data minimization on need-to-know basis"
+      ]
+    },
+    "daml_language": {
+      "title": "Daml Smart Contract Language",
+      "summary": "Functional smart contract language. Templates = classes, contracts = objects, choices = methods. Compiled to Daml-LF bytecode, packaged as DAR files.",
+      "key_points": [
+        "template: contract schema. 'with' block for fields, 'where' block for logic",
+        "signatory: parties required to create/archive. Every contract needs at least one",
+        "observer: parties who can see but not act. Guaranteed to see create/archive",
+        "choice: permissioned function. controller specifies who can exercise",
+        "nonconsuming: choice that doesn't archive the contract",
+        "ensure: template precondition (Bool). e.g. ensure amount > 0.0",
+        "assert/assertMsg: runtime checks in choices",
+        "Daml Script: testing. allocateParty, submit, createCmd, exerciseCmd, submitMustFail",
+        "daml.yaml: project config. Always include daml-prim, daml-stdlib in dependencies",
+        "DAR file: compiled artifact in .daml/dist/. Self-contained like a JAR",
+        "Package hash: the ONLY reliable identifier for deployed packages (hex string)"
+      ]
+    },
+    "party_id": {
+      "title": "Party IDs",
+      "summary": "NOT like ETH addresses. Cannot generate locally — need a participant node. Format: name::fingerprint. Use parties economically.",
+      "key_points": [
+        "Format: <hint>::<namespace_fingerprint> e.g. alice::12200b11a778...",
+        "Party Name: max 185 chars [a-zA-Z0-9_], unique in namespace",
+        "Fingerprint: from validator's key (internal) or external signing key",
+        "Allocate via Admin API or JSON Ledger API POST /v2/parties/allocate",
+        "External parties retain own signing keys for security",
+        "Avoid ephemeral parties — one party per wallet/account"
+      ],
+      "api_example": "curl -d '{\"partyIdHint\":\"Alice\", \"identityProviderId\": \"\"}' -H 'Content-Type: application/json' -X POST localhost:7575/v2/parties/allocate"
+    },
+    "synchronizer": {
+      "title": "Synchronizer",
+      "summary": "Provides sequencing (ordered encrypted communication) and mediation (two-phase commit). NOT a validator.",
+      "key_points": [
+        "Sequencer: ordered, encrypted message delivery",
+        "Mediator: aggregates confirmations, approves/rejects transactions",
+        "Global Synchronizer: shared synchronizer for Canton Network",
+        "Cannot decrypt payloads — privacy by design"
+      ]
+    },
+    "utxo_model": {
+      "title": "UTXO Model",
+      "summary": "Each Daml contract = one UTXO. Distributed only to stakeholder nodes.",
+      "key_points": [
+        "1:1 correspondence: Daml contract = UTXO",
+        "Active Contract Set (ACS) = unspent outputs for a party",
+        "Contracts immutable — update by archive old + create new",
+        "All transactions atomic — commit fully or fail"
+      ]
+    },
+    "transaction_model": {
+      "title": "Transaction Model",
+      "summary": "Transactions are atomic trees of actions. Requester knows all consequences — no surprises.",
+      "key_points": [
+        "Steps: interpret → blind → submit → validate → commit → confirm → complete",
+        "All transactions atomic",
+        "Required authorizers: create=signatories, exercise=controllers, archive=signatories",
+        "Authorization rule: required authorizers ⊆ parent transaction's authorizers"
+      ]
+    },
+    "token_standard": {
+      "title": "Token Standard (CIP-0056)",
+      "summary": "Standard APIs for Canton tokens. Inspired by ERC20 but for UTXO model with privacy. CC implements the full standard.",
+      "key_points": [
+        "Token Metadata: name, symbol, totalSupply",
+        "Holdings: portfolio view from validator node",
+        "Transfer Instruction: FOP peer-to-peer transfers",
+        "Allocation: DVP atomic settlement",
+        "All amounts use Daml Decimal (10 decimal places)",
+        "No unconstrained allowances — allocations cover this",
+        "CC limitation: 10-min submission delay (24h targeted)"
+      ]
+    },
+    "splice_packages": {
+      "title": "Splice Package Architecture",
+      "summary": "Seven Daml packages for CC, CNS, and governance.",
+      "key_points": [
+        "splice-util, splice-amulet (CC), splice-amulet-name-service (CNS)",
+        "splice-dso-governance, splice-validator-lifecycle",
+        "splice-wallet-payments (subscription deprecated), splice-wallet (being replaced by token standard)",
+        "Use Daml interfaces for decoupling from Splice upgrades"
+      ]
+    },
+    "featured_apps": {
+      "title": "Featured App Rewards",
+      "summary": "Featured apps earn CC rewards. Create FeaturedAppActivityMarker for important events.",
+      "key_points": [
+        "Apply via tokenomics committee",
+        "After CIP-0078: only featured apps get rewards (~$1 USD/marker)",
+        "Create markers for: RWA lock/unlock, transfers, mint/burn",
+        "NOT for intermediate/propose steps",
+        "Self-feature on DevNet for testing",
+        "WalletUserProxy helps wallet providers earn rewards"
+      ]
+    },
+    "canton_vs_evm": {
+      "title": "Canton vs EVM",
+      "summary": "Fundamentally different. Complementary to public blockchains — institutional privacy use cases can't exist on transparent networks.",
+      "differences": [
+        {
+          "evm": "Global shared state",
+          "canton": "Selective visibility"
+        },
+        {
+          "evm": "Local wallet keypair",
+          "canton": "Party ID from participant node"
+        },
+        {
+          "evm": "Shared contract vault",
+          "canton": "Party-as-vault"
+        },
+        {
+          "evm": "Gas fees",
+          "canton": "Traffic fees (CC)"
+        },
+        {
+          "evm": "Public mempool",
+          "canton": "Encrypted Synchronizer messages"
+        },
+        {
+          "evm": "Single chain consensus",
+          "canton": "Two-phase commit"
+        },
+        {
+          "evm": "Account model",
+          "canton": "Extended UTXO"
+        },
+        {
+          "evm": "Solidity",
+          "canton": "Daml (functional)"
+        },
+        {
+          "evm": "Etherscan",
+          "canton": "Scan API on SV nodes"
+        },
+        {
+          "evm": "Any RPC has all data",
+          "canton": "Your node has only your data"
+        },
+        {
+          "evm": "ERC20 approve",
+          "canton": "Allocation API (CIP-0056)"
+        }
+      ]
+    },
+    "wallet_integration": {
+      "title": "Wallet/Custody/Exchange Integration",
+      "summary": "Key differences for integrators: your node has your state, parties have cost, TransferPreapproval for deposits.",
+      "key_points": [
+        "Your node has your state — no shared RPC like Ethereum",
+        "Need a validator node (self-host or node-as-a-service)",
+        "Wallets safekeep DATA and assets — preserving customer privacy",
+        "One party per wallet/account, avoid ephemeral parties",
+        "TransferPreapproval for receiving deposits (1-step transfers)",
+        "Integration order: node → DevNet parties → token standard → TestNet → MainNet"
+      ]
+    },
+    "pqs": {
+      "title": "Participant Query Store (PQS)",
+      "summary": "Scalable SQL read layer for Canton. Ingests ledger data into PostgreSQL via 'scribe'. Query contracts (state) and events (audit trail) with SQL.",
+      "key_points": [
+        "Query Daml ledger via SQL using Daml identifiers (mypackage:My.Module:MyTemplate)",
+        "Point-in-time or latest-available basis",
+        "Filter by party and contract template",
+        "JSONB columns — create custom indexes for optimization",
+        "Crash-tolerant, restartable safely",
+        "Security: only canReadAs/readAsAnyParty needed — no actAs/admin",
+        "Complements Ledger API: PQS for reads/analytics, Ledger API for commands",
+        "CN Quickstart includes preconfigured PQS module"
+      ]
+    },
+    "traffic_fees": {
+      "title": "Synchronizer Traffic Fees",
+      "summary": "Canton charges traffic-based fees instead of gas. Free tier via burstAmount/burstWindow, then extraTrafficPrice in USD/MB paid in CC.",
+      "key_points": [
+        "Free tier: burstAmount bytes per burstWindow (restored after inactivity)",
+        "Extra traffic: USD/MB, paid in CC at current exchange rate",
+        "Exchange rate: median of SV votes on OpenMiningRound contracts",
+        "readVsWriteScalingFactor: per-recipient delivery cost in basis points",
+        "MemberTraffic contracts track purchased traffic on-ledger",
+        "minTopupAmount: minimum purchase to amortize SV processing cost",
+        "Configured by SVs via DSO on-ledger voting"
+      ]
+    },
+    "scan_api_detail": {
+      "title": "Scan API (Detail)",
+      "summary": "Public HTTP API on SV nodes. Network-wide view of CC activity, mining rounds, registry metadata. Essential for wallets and apps building transfers.",
+      "key_points": [
+        "Discovery: https://sync.global/sv-network/",
+        "Registry metadata: GET /registry/metadata/v1/info → adminId, supportedApis",
+        "Instruments: GET /registry/metadata/v1/instruments → id, name, symbol, totalSupply",
+        "Transfer factory: POST /registry/transfer-instruction/v1/transfer-factory → factoryId, transferKind, choiceContext, disclosedContracts",
+        "CC price: POST /api/scan/v0 with cached_open_mining_round_trip_with_uses",
+        "SV versions: GET /api/scan/v0/scans → list of all SV scan URLs",
+        "BFT reads: query 2/3+ of SV scans for Byzantine fault tolerance",
+        "GSF example: https://scan.sv-1.global.canton.network.sync.global"
+      ]
+    },
+    "localnet": {
+      "title": "LocalNet (Splice Docker Compose)",
+      "summary": "Full local Canton Network for dev/testing. 3 validators, PostgreSQL, wallet/sv/scan UIs behind nginx.",
+      "key_points": [
+        "Validators: app-provider (3xxx ports), app-user (2xxx), sv (4xxx)",
+        "Wallet UIs: wallet.localhost:2000 (user), :3000 (provider)",
+        "Scan UI: scan.localhost:4000",
+        "SV UI: sv.localhost:4000",
+        "Default users: app-user, app-provider, sv",
+        "Swagger UI: port 9090 (--profile swagger-ui)",
+        "Rounds take up to 1 hour (6 rounds) to appear in Scan UI",
+        "Single PostgreSQL for all components",
+        "Modules: keycloak (optional), splice-onboarding, pqs, observability, daml-shell"
+      ]
+    },
+    "mining_rounds": {
+      "title": "Mining Rounds",
+      "summary": "Canton's time-division mechanism. Rounds advance every ~2.5 minutes. Each round has an associated CC/USD exchange rate set by SV median vote.",
+      "key_points": [
+        "~2.5 minute intervals",
+        "OpenMiningRound contracts hold current exchange rate",
+        "SVs vote on conversion rate (median wins)",
+        "Rewards issued per round to validators and featured apps",
+        "After CIP-0078: no CC transfer fees, only featured app rewards"
+      ]
+    }
+  },
+  "NETWORKS": {
+    "local": {
+      "name": "LocalNet (CN Quickstart)",
+      "description": "Full local Canton Network via Docker Compose.",
+      "setup": "git clone https://github.com/digital-asset/cn-quickstart && make install && make start",
+      "ports": {
+        "JSON Ledger API": "7575 or json-ledger-api.localhost:80",
+        "gRPC Ledger API": "6866 or grpc-ledger-api.localhost:80",
+        "Wallet UI": "http://wallet.localhost",
+        "CNS UI": "http://ans.localhost"
+      }
+    },
+    "devnet": {
+      "name": "DevNet",
+      "description": "Shared dev network. Resets periodically. Self-feature apps for testing.",
+      "note": "Join #gsf-global-synchronizer-appdev on Slack."
+    },
+    "testnet": {
+      "name": "TestNet",
+      "description": "Stable test network. Ethereum Sepolia for xReserve bridge.",
+      "xreserve_bridge": "Sepolia USDC → Canton TestNet"
+    },
+    "mainnet": {
+      "name": "MainNet",
+      "description": "Production. Kubernetes recommended.",
+      "usdc_details": {
+        "instrumentId": "USDCx",
+        "bridge_ui": "https://digital-asset.github.io/xreserve-deposits/",
+        "note": "Ethereum MainNet → Canton MainNet via Circle xReserve"
+      }
+    }
+  },
+  "COMMUNITY": {
+    "slack_channels": [
+      {
+        "name": "#gsf-global-synchronizer-appdev",
+        "purpose": "Primary dev support"
+      },
+      {
+        "name": "#gsf-outreach",
+        "purpose": "General community"
+      },
+      {
+        "name": "#validator-operations",
+        "purpose": "Validator ops support"
+      }
+    ],
+    "mailing_lists": [
+      {
+        "name": "validator-announce@lists.sync.global",
+        "url": "https://lists.sync.global/groups",
+        "purpose": "Network announcements"
+      },
+      {
+        "name": "cip-discuss@lists.sync.global",
+        "url": "https://lists.sync.global/g/cip-discuss",
+        "purpose": "CIP discussions"
+      }
+    ],
+    "discord": {
+      "url": "https://discord.gg/canton",
+      "note": "Canton Foundation Discord"
+    },
+    "warning": "Price speculation in Slack → immediate removal."
+  },
+  "VERSIONS": {
+    "canton_sdk": "3.4",
+    "splice": "0.5.0",
+    "dpm_install": "curl https://get.digitalasset.com/install/install.sh | sh",
+    "prerequisites": "JDK 17+, VS Code",
+    "note": "daml-assistant still works for legacy Canton 3.3 but NOT recommended for new projects."
+  },
+  "ZENITH": {
+    "name": "Zenith",
+    "description": "Shared Reth-based EVM on Canton. EVM payloads wrap into native Canton transactions atomically.",
+    "key_points": [
+      "NOT an L2 rollup — atomic composition with Canton L1 via external_call()",
+      "Dual-leg finality",
+      "Built by Zenith, not Canton Foundation",
+      "EVM devs interact with Canton without learning Daml"
+    ]
+  },
+  "FAQ": [
+    {
+      "question": "How do I install the Canton SDK?",
+      "answer": "Install DPM:\n\nMac/Linux: curl https://get.digitalasset.com/install/install.sh | sh\nWindows: Download Windows installer from DPM docs.\nPrereqs: JDK 17+, VS Code\nVerify: dpm version --active\n\nDO NOT use daml-assistant — deprecated for Canton 3.4+."
+    },
+    {
+      "question": "How do I create a new Daml project?",
+      "answer": "dpm new my-project\n\nWith template: dpm new my-project --template daml-intro-compose\nTemplates: daml-intro-compose, daml-intro-test, daml-intro-constraints, json-tests\n\nThen: cd my-project && dpm build"
+    },
+    {
+      "question": "How do I start a local Canton ledger?",
+      "answer": "Quick: dpm sandbox (JSON API on 7575)\nFull network: git clone cn-quickstart && make install && make start\nBrowser: https://playbox.canton.network"
+    },
+    {
+      "question": "How do I create a party?",
+      "answer": "curl -d '{\"partyIdHint\":\"Alice\",\"identityProviderId\":\"\"}' -H 'Content-Type: application/json' -X POST localhost:7575/v2/parties/allocate\n\nReturns: {\"party\":\"Alice::1220...\"}\n\nIMPORTANT: Cannot generate party IDs locally (unlike ETH). Need running participant node."
+    },
+    {
+      "question": "How do I create a contract?",
+      "answer": "1. Write Daml template\n2. dpm build\n3. dpm sandbox -c config.conf\n4. curl localhost:7575/v2/commands/submit-and-wait -H 'Content-Type: application/json' -d @create.json\n\nTutorial: https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api.html"
+    },
+    {
+      "question": "How do I query active contracts?",
+      "answer": "curl localhost:7575/v2/state/active-contracts -H 'Content-Type: application/json' -d @acs.json | jq\n\nSet activeAtOffset to completionOffset from last submit.\nCheck offset: curl localhost:7575/v2/state/ledger-end"
+    },
+    {
+      "question": "What is daml.yaml?",
+      "answer": "Project config:\n\nsdk-version: 3.4.x\nname: my-project\nsource: daml\nversion: 1.0.0\ndependencies:\n  - daml-prim\n  - daml-stdlib\n  - daml-script\n\nSupports ${ENV_VAR} interpolation. For multi-package: create multi-package.yaml listing sub-packages."
+    },
+    {
+      "question": "What is a DAR file?",
+      "answer": "Compiled Daml artifact (.daml/dist/). Contains Daml-LF bytecode + all dependencies. Self-contained like a JAR.\n\nInspect: dpm damlc inspect-dar myfile.dar\nJSON: dpm damlc inspect-dar --json myfile.dar (main_package_id = package hash)\n\nPackage hash is the ONLY reliable identifier for deployed packages."
+    },
+    {
+      "question": "How do I test Daml contracts?",
+      "answer": "VS Code: click 'Script results' lens for table/transaction views\nCLI: dpm test (all scripts) or dpm test --files Token_Test.daml\n\nKey functions: allocateParty, submit, createCmd, exerciseCmd, archiveCmd, submitMustFail\nProvides choice coverage info."
+    },
+    {
+      "question": "Canton vs Ethereum?",
+      "answer": "Selective visibility (no global state), party-as-vault, UTXO model, two-phase commit, Daml (not Solidity). Synchronizer can't read transaction data. Complementary to public blockchains — institutional privacy use cases."
+    },
+    {
+      "question": "How do I transfer tokens?",
+      "answer": "Token Standard (CIP-0056):\n1. TransferPreapproval: receiver preapproves (1-step deposits)\n2. Transfer Instruction API: FOP transfers\n3. Allocation API: DVP settlement\n\nCC transfers have NO fees (CIP-0078).\nDocs: https://docs.dev.sync.global/app_dev/token_standard/index.html"
+    },
+    {
+      "question": "How do I deploy to DevNet/TestNet?",
+      "answer": "1. dpm build\n2. Get validator node (self-host or NaaS)\n3. Upload DAR via gRPC/Admin API\n4. Set up parties, configure OAuth2/JWT auth\n5. Test: LocalNet → DevNet → TestNet → MainNet\n\nValidator: https://docs.dev.sync.global/validator_operator/docker_compose_validator.html"
+    },
+    {
+      "question": "TypeScript libraries?",
+      "answer": "1. Generate stubs from JSON API OpenAPI spec (openapi-fetch)\n2. dpm codegen-js or dpm codegen-alpha-typescript for Daml bindings\n3. @c7/ledger + @c7/react (NOT deprecated @daml/ledger)\n\nTutorial: https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api_ts.html"
+    },
+    {
+      "question": "What is Zenith?",
+      "answer": "Shared Reth-based EVM on Canton. EVM payloads wrap into Canton transactions atomically. NOT an L2 rollup. Uses external_call() Daml primitive. Built by Zenith."
+    },
+    {
+      "question": "Authentication?",
+      "answer": "Local sandbox: no auth. Production: JWT (RS256). Splice apps: sub=ledger-api-user, aud=configured audience. OAuth2 Authorization Code for UIs. Configure OIDC provider (Auth0, Keycloak)."
+    },
+    {
+      "question": "Canton Name Service (CNS)?",
+      "answer": "Canton's ENS equivalent. Register names for ~1 USD/90 days. UI: http://cns.validator.HOSTNAME or http://ans.localhost. Implemented in splice-amulet-name-service."
+    },
+    {
+      "question": "Featured application?",
+      "answer": "1. Apply via tokenomics committee form\n2. Create FeaturedAppActivityMarker for important events (transfers, mint/burn)\n3. ~$1 USD reward per marker (CIP-0078)\n4. Self-feature on DevNet for testing\nDocs: https://docs.dev.sync.global/app_dev/featured_app_activity_marker.html"
+    },
+    {
+      "question": "Signatories and observers?",
+      "answer": "Signatories: required to create/archive. signatory keyword. Every contract needs one. See creation+archival.\nObservers: can see, can't act. observer keyword. See create/archive.\nControllers: can exercise a choice. controller keyword. Required authorizers."
+    },
+    {
+      "question": "Propose-accept pattern?",
+      "answer": "Most common multi-party pattern. Party A creates Proposal (A=signatory). Party B exercises Accept (adds B's authority). Creates final contract with both signatories. Standard triple: Accept/Reject/Cancel."
+    },
+    {
+      "question": "Bridge USDC to Canton?",
+      "answer": "xReserve UI: https://digital-asset.github.io/xreserve-deposits/\n1. Connect wallet (MetaMask)\n2. Select MainNet or TestNet\n3. Enter USDC amount + Canton party ID\n4. Approve 2 ETH transactions\n5. Wait ~15 min for ETH finality\nParty ID must match onboarding ID."
+    },
+    {
+      "question": "What is PQS?",
+      "answer": "Participant Query Store — SQL read layer for Canton. Ingests ledger data into PostgreSQL.\n\nInstall: dpm install <version> (includes scribe.jar)\nLocate jar: dpm resolve | grep scribe\nDocker: europe-docker.pkg.dev/da-images/public/docker/participant-query-store:<version>\n\nBasic usage:\n./scribe.jar pipeline ledger postgres-document \\\n  --pipeline-filter-parties 'Alice::*' \\\n  --pipeline-ledger-start Latest \\\n  --source-ledger-host canton-host --source-ledger-port 6865 \\\n  --target-postgres-host pg-host --target-postgres-database mydb\n\nRequires: JDK 17+, PostgreSQL 14+. Needs 4GB RAM (PQS) + 8GB RAM (PostgreSQL).\nDocs: https://docs.digitalasset.com/build/3.4/tools/pqs"
+    },
+    {
+      "question": "How do I query the Scan API?",
+      "answer": "Scan API is on SV nodes. Discovery: https://sync.global/sv-network/\n\nRegistry info:\ncurl https://scan.sv-1.global.canton.network.sync.global/registry/metadata/v1/info\n\nInstruments:\ncurl https://scan.sv-1.global.canton.network.sync.global/registry/metadata/v1/instruments\n\nTransfer factory (build transfers):\ncurl -X POST -H 'Content-Type: application/json' https://scan.sv-1.global.canton.network.sync.global/registry/transfer-instruction/v1/transfer-factory -d '{...}'\n\nCC price (OpenMiningRound):\ncurl -X POST -H 'Content-Type: application/json' https://scan.sv-1.global.canton.network.sync.global/api/scan/v0 -d '{\"cached_open_mining_round_trip_with_uses\":{}}'\n\nFor BFT: query 2/3+ of SV scans."
+    },
+    {
+      "question": "Splice LocalNet setup?",
+      "answer": "Option 1 (CN Quickstart): git clone https://github.com/digital-asset/cn-quickstart && make install && make start\n\nOption 2 (Splice bundle):\n1. Download from Splice releases\n2. tar xzvf 0.5.10_splice-node.tar.gz\n3. export LOCALNET_DIR=$PWD/splice-node/docker-compose/localnet IMAGE_TAG=0.5.10\n4. docker compose --env-file $LOCALNET_DIR/compose.env ... up -d\n\nUIs: wallet.localhost:2000 (user), wallet.localhost:3000 (provider), scan.localhost:4000\nDefault users: app-user, app-provider, sv\nSwagger: --profile swagger-ui (port 9090)"
+    },
+    {
+      "question": "Traffic fees?",
+      "answer": "Canton uses traffic fees, not gas.\n\nFree tier: burstAmount bytes per burstWindow.\nExtra: USD/MB in CC at current exchange rate (SV median vote).\n\nCheck CC price:\ncurl -X POST -H 'Content-Type: application/json' https://scan.sv-1.global.canton.network.sync.global/api/scan/v0 -d '{\"cached_open_mining_round_trip_with_uses\":{}}'\n\nBuy traffic: MemberTraffic contracts updated atomically when CC spent.\nDocs: https://docs.dev.sync.global/tokenomics/traffic_fees.html"
+    },
+    {
+      "question": "How to check balance / get holdings?",
+      "answer": "Holdings are UTXOs. Sum all Holding contracts for owner + instrumentId.\n\n1. Get instrumentId:\ncurl https://scan.sv-1.global.canton.network.sync.global/registry/metadata/v1/instruments\n\n2. Get offset:\ncurl http://localhost:7575/v2/state/ledger-end\n\n3. Query ACS:\ncurl http://localhost:7575/v2/state/active-contracts -H 'Content-Type: application/json' -d @acs.json\n\nFilter by Holding interface. Sum amounts for balance."
+    },
+    {
+      "question": "Multi-package Daml project?",
+      "answer": "Create multi-package.yaml at project root:\n\npackages:\n  - ./core\n  - ./tests\n\nEach has own daml.yaml. 'dpm build --all' builds topologically.\n'dpm build' in sub-package auto-detects deps.\n\nBest practice: production templates in one package, test scripts separate."
+    },
+    {
+      "question": "How do I build a transfer on Canton?",
+      "answer": "Use Token Standard (CIP-0056) TransferFactory:\n\n1. Get TransferFactory + context from Scan:\ncurl -X POST https://scan.sv-1.global.canton.network.sync.global/registry/transfer-instruction/v1/transfer-factory -d '{\"choiceArguments\":{\"expectedAdmin\":\"DSO::...\",\"transfer\":{\"sender\":\"...\",\"receiver\":\"...\",\"amount\":\"100.0\",\"instrumentId\":{\"admin\":\"DSO::...\",\"id\":\"Amulet\"},...},...}}'\n\n2. Returns factoryId, transferKind (direct/2-step), choiceContext, disclosedContracts\n3. Submit via JSON Ledger API with disclosed contracts\n\nDocs: https://docs.dev.sync.global/app_dev/token_standard/index.html"
+    }
+  ]
+}

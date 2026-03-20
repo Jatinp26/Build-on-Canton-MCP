@@ -1,0 +1,20 @@
+{
+  "name": "canton-mcp-server",
+  "version": "1.0.0",
+  "description": "Canton Network MCP Server - Accurate, current developer resources for Canton/Daml developers",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "canton-mcp-server": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["canton", "daml", "mcp", "developer-tools", "blockchain", "canton-network"],
+  "author": "Canton Foundation",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}
