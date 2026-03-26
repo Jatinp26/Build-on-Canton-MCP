@@ -126,25 +126,99 @@
       "description": "Local Canton ledger. Start via 'dpm sandbox'. JSON API port 7575, gRPC port 6866.",
       "docs": "https://docs.digitalasset.com/build/3.4/tools/canton-sandbox"
     },
-    "create_canton_app": {
-      "name": "create-canton-app",
-      "description": "Canton Foundation CLI scaffolding: npx create-canton-app@latest my-app. Auto-detects SDK. Token, Escrow, Empty templates.",
-      "install": "npx create-canton-app@latest my-app",
-      "docs": "https://www.npmjs.com/package/create-canton-app",
-      "source": "Canton Foundation"
-    },
-    "canton_playbox": {
-      "name": "Canton Playbox",
-      "description": "Browser-based Daml IDE. 20+ templates, auto-save, no install. Best for first exploration.",
-      "url": "https://playbox.canton.network",
-      "source": "Canton Foundation"
-    },
+
     "vscode_daml": {
       "name": "Daml VS Code Extension",
       "description": "Syntax highlighting, inline script results, error checking, code coverage. Launch: dpm studio.",
       "install": "Search 'Daml' in VS Code Extensions or run 'dpm studio'",
       "docs": "https://docs.digitalasset.com/build/3.4/tools/visual-studio-code"
     },
+
+    "dapp_sdk": {
+      "name": "dApp SDK (CIP-0103)",
+      "source": "Digital Asset — Wallet Unit",
+      "description": "SDK for application developers to implement the CIP-0103 dApp standard. Enables any dApp to connect to any CIP-0103 compliant wallet without bespoke integration.",
+      "capabilities": [
+        "Implements CIP-0103 client side",
+        "Supports synchronous flows (browser extensions)",
+        "Supports asynchronous flows (server-side / mobile wallets)",
+        "Wallet connection and transaction request lifecycle"
+      ],
+      "targetUsers": ["dApp developers", "Application builders on Canton"],
+      "relatedComponent": "discovery_component",
+      "note": "Always pair with the Discovery Component so users can see and pick wallets.",
+      "docs": "https://docs.canton.network"
+    },
+    
+    "discovery_component": {
+      "name": "Discovery Component",
+      "source": "Digital Asset — Wallet Unit",
+      "description": "Drop-in TypeScript UI component that dApp developers embed in their frontend. Displays all CIP-0103 compliant wallets available for the user to connect — analogous to RainbowKit on Ethereum.",
+      "capabilities": [
+        "Lists all CIP-0103 compliant wallets",
+        "Handles wallet selection UX",
+        "Plug-and-play — no bespoke wallet integration needed"
+      ],
+      "targetUsers": ["dApp developers"],
+      "analogEthereum": "RainbowKit / WalletConnect modal",
+      "note": "Network effect: every new wallet that implements CIP-0103 automatically appears here — dApps get it for free."
+    },
+    
+    "wallet_gateway": {
+      "name": "Wallet Gateway",
+      "source": "Digital Asset — Wallet Unit",
+      "description": "Deployed in the user's own environment, close to their validator node. Acts as the bridge between the validator and external custody/signing providers. Enables bring-your-own-validator + bring-your-own-custody model.",
+      "capabilities": [
+        "Connects any CIP-0103 compliant dApp to a self-operated validator",
+        "Routes transaction signing to external custody via signing drivers",
+        "Supports Fireblocks, BitGo, DFNS, Blockdaemon, and others via driver abstraction",
+        "Private keys never leave the custody provider's infrastructure",
+        "Supports multi-party setups"
+      ],
+      "targetUsers": ["Institutional validators", "Exchanges", "Custodians", "Anyone self-hosting a node with external key management"],
+      "signingDrivers": ["Fireblocks", "BitGo", "DFNS", "Blockdaemon"],
+      "deploymentModel": "Deployed in user's own environment, adjacent to validator node",
+      "note": "Signing driver abstraction means new custody providers can be added without changing the gateway itself.",
+      "docs": "https://docs.canton.network"
+    },
+    
+    "reference_wallet": {
+      "name": "Reference Wallet",
+      "source": "Digital Asset — Wallet Unit",
+      "description": "Open-source, production-ready browser extension wallet for Canton. Manages private keys, signs transactions, and provides end-user wallet UX. Not bundled with a validator — users need their own node access.",
+      "capabilities": [
+        "Private key management",
+        "Transaction signing",
+        "Browser extension UX",
+        "Key recovery / import flow",
+        "CIP-0103 compliant (dApp connectivity)"
+      ],
+      "targetUsers": ["End users", "Wallet developers (as reference implementation)"],
+      "strategicPurpose": [
+        "Dogfoods DA's own SDKs and standards",
+        "Gives external wallet teams a production-grade reference to build from",
+        "Covers wallet functionality commercial providers may not prioritise (e.g. key recovery)"
+      ],
+      "note": "Does NOT bundle validator access. Users still need a validator node to use Canton. Provides wallet layer only.",
+      "availability": "Available as GitHub repo for download and self-deployment"
+    },
+    
+    "portfolio_ui": {
+      "name": "Portfolio UI (dApp Portfolio)",
+      "source": "Digital Asset — Wallet Unit",
+      "description": "Open-source reference dApp for viewing and interacting with Canton assets. NOT a wallet — no key management or signing. Users connect their wallet via CIP-0103 and use this as a portfolio dashboard.",
+      "capabilities": [
+        "View asset holdings and positions",
+        "Initiate offers, allocations, and transfers",
+        "Multi-party portfolio views",
+        "Works with any CIP-0103 compliant wallet",
+        "Supports Wallet Gateway setups (multi-party)"
+      ],
+      "targetUsers": ["End users", "dApp developers (as reference implementation)"],
+      "note": "Expected to replace the splice amulet wallet UI currently bundled with validator tooling. Clone, install, connect wallet.",
+      "availability": "Open source"
+    },
+
     "pqs": {
       "name": "Participant Query Store (PQS)",
       "description": "Ingests ledger data into PostgreSQL for SQL querying. Executable: 'scribe'. Enables SQL on Daml ledger state (contracts) and history (events). Point-in-time queries, party/template filtering, JSONB columns.",
@@ -186,6 +260,11 @@
       "title": "Canton Foundation Docs",
       "url": "https://docs.canton.network",
       "description": "Canton Foundation documentation portal."
+    },
+    "cip_0103": {
+      "title": "CIP-0103 — dApp Standard",
+      "url": "https://github.com/canton-foundation/cips/blob/main/cip-0103/cip-0103.md",
+      "description": "Defines how wallets and dApps connect and interoperate on Canton Network. Both sides implement once; any compliant wallet works with any compliant dApp automatically. Covers synchronous (browser extension) and asynchronous (server-side/mobile) wallet architectures."
     },
     "tutorial_json_api": {
       "title": "Get Started: JSON Ledger API + curl",
@@ -481,6 +560,7 @@
         "Package hash: the ONLY reliable identifier for deployed packages (hex string)"
       ]
     },
+
     "party_id": {
       "title": "Party IDs",
       "summary": "NOT like ETH addresses. Cannot generate locally — need a participant node. Format: name::fingerprint. Use parties economically.",
@@ -494,6 +574,42 @@
       ],
       "api_example": "curl -d '{\"partyIdHint\":\"Alice\", \"identityProviderId\": \"\"}' -H 'Content-Type: application/json' -X POST localhost:7575/v2/parties/allocate"
     },
+
+  "cip_0103_standard": {
+    "title": "CIP-0103 — Canton dApp Standard",
+    "summary": "The wallet-to-dApp connectivity standard for Canton. Analogous to WalletConnect / EIP-1193 on Ethereum. Any wallet implementing the dApp API and any dApp using the dApp SDK are automatically interoperable — no bespoke per-pair integration needed.",
+    "key_points": [
+      "Solves the N×M integration problem: N wallets × M dApps would require N×M custom integrations without the standard",
+      "Wallets implement the dApp API (server or browser extension)",
+      "dApps consume the dApp SDK and embed the Discovery Component",
+      "Supports both sync flows (browser extensions) and async flows (server-side / mobile)",
+      "Canton-specific: the connection includes party identity and validator node context — not just an address",
+      "Discovery Component = RainbowKit equivalent for Canton",
+      "Implemented and maintained by Digital Asset Wallet Unit"
+    ],
+    "analogEthereum": "WalletConnect + EIP-1193 + RainbowKit combined"
+  },
+  
+  "wallet_unit_products": {
+    "title": "DA Wallet Unit — Product Suite",
+    "summary": "Six products from Digital Asset's Wallet Unit that form the wallet and application connectivity layer for Canton Network. Built on open-source, provider-agnostic, institutional-ready principles.",
+    "products": {
+      "wallet_sdk": "TypeScript SDK for institutions/exchanges/custodians. Wraps Ledger API. Handles party creation, tx submission, delegations, balance queries.",
+      "dapp_sdk": "CIP-0103 implementation for dApp developers. App-side of the wallet-dApp handshake. Sync + async wallet support.",
+      "discovery_component": "Drop-in UI widget. Shows available CIP-0103 wallets for user to connect. Pairs with dApp SDK. Always include both.",
+      "wallet_gateway": "Deployed by validators/institutions. Bridges validator node to external custody (Fireblocks, BitGo, DFNS, Blockdaemon) via signing drivers. Keys never leave custody.",
+      "reference_wallet": "Open-source production browser extension wallet. Real key management, real signing, CIP-0103 compliant. No validator bundled — users need their own node access.",
+      "portfolio_ui": "Open-source dApp dashboard. View holdings, offers, allocations. NOT a wallet. Connects via CIP-0103. Replaces splice amulet wallet UI over time."
+    },
+    "unifyingStandard": "CIP-0103 — all six products are designed around it",
+    "key_points": [
+      "Wallet SDK + Wallet Gateway often used together by institutional validators",
+      "dApp SDK + Discovery Component always shipped together",
+      "Reference Wallet dogfoods the SDK/standard and serves as reference for external wallet teams",
+      "Portfolio UI is end-user facing and works with any CIP-0103 wallet including Wallet Gateway setups"
+    ]
+  },
+
     "synchronizer": {
       "title": "Synchronizer",
       "summary": "Provides sequencing (ordered encrypted communication) and mediation (two-phase commit). NOT a validator.",
@@ -792,6 +908,35 @@
       "question": "How do I create a contract?",
       "answer": "1. Write Daml template\n2. dpm build\n3. dpm sandbox -c config.conf\n4. curl localhost:7575/v2/commands/submit-and-wait -H 'Content-Type: application/json' -d @create.json\n\nTutorial: https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api.html"
     },
+
+    {
+      "question": "What is CIP-0103?",
+      "answer": "CIP-0103 is the Canton dApp standard — defines how wallets and dApps connect and interoperate. Analogous to WalletConnect/EIP-1193 on Ethereum.\n\nTwo sides:\n- Wallets implement the dApp API (server-side or browser extension)\n- dApps use the dApp SDK + embed the Discovery Component\n\nResult: any compliant wallet works with any compliant dApp automatically. No bespoke per-pair integration.\n\nSolves the N×M problem: without it, N wallets × M dApps = N×M custom integrations.\n\nKey Canton difference: connection includes party identity + validator node context (not just an address).\n\nSpec: https://github.com/mjuchli-da/cips/blob/cip-dapp-standard/cip-0103/cip-0103.md"
+    },
+    {
+      "question": "What is the Wallet Gateway?",
+      "answer": "Wallet Gateway is deployed in your own environment, adjacent to your validator node. It bridges your validator to an external custody/signing provider so private keys never need to live on the validator.\n\nSupports: Fireblocks, BitGo, DFNS, Blockdaemon (and others via signing driver abstraction).\n\nUse case: institutions that self-host a Canton validator but manage keys in their existing custody infrastructure.\n\nFlow:\n1. dApp requests signing via CIP-0103\n2. Wallet Gateway intercepts\n3. Routes to custody provider via signing driver\n4. Gets signature back\n5. Submits transaction — keys never left the custody provider\n\nSource: Digital Asset Wallet Unit."
+    },
+    {
+      "question": "What is the Discovery Component?",
+      "answer": "A drop-in TypeScript UI component for dApp developers. Embed it in your dApp frontend and users see a list of all CIP-0103 compliant wallets they can connect — like RainbowKit on Ethereum.\n\nAlways pair with the dApp SDK (the component is UI; the SDK is the protocol layer).\n\nNetwork effect: every new wallet that implements CIP-0103 automatically appears in the discovery component — existing dApps get new wallet support for free without code changes.\n\nSource: Digital Asset Wallet Unit."
+    },
+    {
+      "question": "What is the Reference Wallet?",
+      "answer": "An open-source, production-ready browser extension wallet for Canton. Real key management, real signing, CIP-0103 compliant.\n\nImportant: does NOT bundle validator access. Users still need their own Canton validator node (self-hosted or via NaaS) to use the network. The Reference Wallet provides only the wallet layer.\n\nThree strategic purposes:\n1. Dogfoods DA's own SDKs/standards (if broken, the SDK is broken)\n2. Gives external wallet teams a production-grade reference to build from\n3. Covers functionality commercial wallets may skip (e.g. key recovery flow)\n\nAvailable as a GitHub repo for download and self-deployment.\n\nSource: Digital Asset Wallet Unit."
+    },
+    {
+      "question": "What is the Portfolio UI?",
+      "answer": "Open-source reference dApp for viewing and managing Canton assets. NOT a wallet — no key management or signing.\n\nUsers: clone it, install, connect any CIP-0103 compliant wallet, and use it as a portfolio dashboard.\n\nCapabilities: view holdings, initiate transfers/offers/allocations, multi-party views, supports Wallet Gateway setups.\n\nExpected to replace the splice amulet wallet UI that currently ships bundled with validator tooling.\n\nSource: Digital Asset Wallet Unit."
+    },
+    {
+      "question": "What is the Wallet SDK?",
+      "answer": "TypeScript SDK from DA Wallet Unit for institutions, exchanges, and custodians integrating with Canton.\n\nWraps the low-level Ledger API and exposes clean methods for:\n- Creating parties\n- Preparing and submitting transactions\n- Handling delegations\n- Querying balances and holdings\n- CIP-0056 token standard workflows\n\nTarget users: wallet developers (Loop, Bron, Ledger-type builds), exchanges, custodians, NaaS providers.\n\nPurpose: every integrator shouldn't build their own Ledger API plumbing from scratch.\n\nSource: Digital Asset Wallet Unit."
+    },
+    {
+      "question": "Which Wallet Unit product do I need?",
+      "answer": "Building a wallet or custody integration? → Wallet SDK\nRunning your own validator + external custody (Fireblocks/BitGo/DFNS)? → Wallet Gateway\nBuilding a dApp that needs wallet connectivity? → dApp SDK + Discovery Component (always both)\nNeed a reference/open-source wallet? → Reference Wallet\nNeed a portfolio/asset dashboard dApp? → Portfolio UI\n\nAll products connect via CIP-0103 — the shared interoperability standard.\n\nSource: Digital Asset Wallet Unit."
+    },    
     {
       "question": "How do I query active contracts?",
       "answer": "curl localhost:7575/v2/state/active-contracts -H 'Content-Type: application/json' -d @acs.json | jq\n\nSet activeAtOffset to completionOffset from last submit.\nCheck offset: curl localhost:7575/v2/state/ledger-end"
