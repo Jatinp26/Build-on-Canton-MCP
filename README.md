@@ -2,6 +2,8 @@
 
 When developers use AI tools to learn Canton, they get recommended deprecated documentation links. This Local MCP Integration **solves** that. It provides a curated, remotely updated knowledge base covering Canton's Dev Stack and Guide Devs using Claude 0 to 100.
 
+> **New Release:** Extended Info on CIP-103 & Wallet Components including dApp SDK, dApp API, Wallet Gateway and More.
+
 ## How does it do this?
 
 The server fetches its knowledge base from this repo on startup, then caches it locally. If and When we push an update here, every MCP user gets it automatically on their next restart, no manual pulls needed.
