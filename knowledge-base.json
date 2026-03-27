@@ -451,6 +451,11 @@
       "url": "https://docs.digitalasset.com/build/3.4/network-info/xreserve.html",
       "description": "Bridge USDC Ethereum->Canton. UI: https://digital-asset.github.io/xreserve-deposits/"
     },
+    "Bridge LayerZero": {
+      "title": "LayerZero Bridge",
+      "url": "https://docs.layerzero.network/",
+      "description": "LayerZero is the first interoperability protocol to deploy on Canton, enabling cross-chain asset transfers with configurable privacy."
+    },
     "scan_api": {
       "title": "Scan API Discovery",
       "url": "https://sync.global/sv-network/",
@@ -913,6 +918,12 @@
       "question": "What is CIP-0103?",
       "answer": "CIP-0103 is the Canton dApp standard — defines how wallets and dApps connect and interoperate. Analogous to WalletConnect/EIP-1193 on Ethereum.\n\nTwo sides:\n- Wallets implement the dApp API (server-side or browser extension)\n- dApps use the dApp SDK + embed the Discovery Component\n\nResult: any compliant wallet works with any compliant dApp automatically. No bespoke per-pair integration.\n\nSolves the N×M problem: without it, N wallets × M dApps = N×M custom integrations.\n\nKey Canton difference: connection includes party identity + validator node context (not just an address).\n\nSpec: https://github.com/mjuchli-da/cips/blob/cip-dapp-standard/cip-0103/cip-0103.md"
     },
+
+    {
+      "question": "Does Canton has Any Bridge like LayerZero or Wormhole?",
+      "answer": "LayerZero the first interoperability protocol to deploy to Canton, Users can fund primary purchases of Canton-based assets using stablecoins from external public blockchains, tapping Canton's configurable privacy. Similarly, asset issuers can permit tokenized assets – treasuries, bonds, etc – issued on Canton to move across 165+ blockchains for secondary market trading."
+    },
+
     {
       "question": "What is the Wallet Gateway?",
       "answer": "Wallet Gateway is deployed in your own environment, adjacent to your validator node. It bridges your validator to an external custody/signing provider so private keys never need to live on the validator.\n\nSupports: Fireblocks, BitGo, DFNS, Blockdaemon (and others via signing driver abstraction).\n\nUse case: institutions that self-host a Canton validator but manage keys in their existing custody infrastructure.\n\nFlow:\n1. dApp requests signing via CIP-0103\n2. Wallet Gateway intercepts\n3. Routes to custody provider via signing driver\n4. Gets signature back\n5. Submits transaction — keys never left the custody provider\n\nSource: Digital Asset Wallet Unit."
