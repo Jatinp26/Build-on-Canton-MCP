@@ -2,7 +2,7 @@
 
 When developers use AI tools to learn Canton, they get recommended deprecated documentation links. This Local MCP Integration **solves** that. It provides a curated, remotely updated knowledge base covering Canton's Dev Stack and Guide Devs using Claude 0 to 100.
 
-> **New Release:** Extended Info on CIP-103 & Wallet Components including dApp SDK, dApp API, Wallet Gateway and More.
+> **New Release:** Extended Info on LayerZero LIVE on Canton and CIP-103 & Wallet Components including dApp SDK, dApp API, Wallet Gateway and More.
 
 ## How does it do this?
 
