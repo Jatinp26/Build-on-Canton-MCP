@@ -50,13 +50,17 @@ async function loadCachedKB() {
 
 async function loadLocalFallbackKB() {
   try {
-    const p = join(__dirname, "knowledge-base.js");
+    const p = join(__dirname, "knowledge-base.json");
     if (!existsSync(p)) return null;
-    const mod = await import(p);
-    const data = { DEPRECATED: mod.DEPRECATED, TOOLS: mod.TOOLS, DOCS: mod.DOCS, CONCEPTS: mod.CONCEPTS, NETWORKS: mod.NETWORKS, COMMUNITY: mod.COMMUNITY, VERSIONS: mod.VERSIONS, ZENITH: mod.ZENITH, FAQ: mod.FAQ, _source: "local-fallback" };
-    console.error("[canton-mcp] KB loaded from local fallback");
+    const data = JSON.parse(await readFile(p, "utf-8"));
+    if (!data.DEPRECATED || !data.DOCS || !data.VERSIONS) throw new Error("Invalid bundled KB format");
+    data._source = "bundled-fallback";
+    console.error("[canton-mcp] KB loaded from bundled fallback");
     return data;
-  } catch { return null; }
+  } catch (err) {
+    console.error(`[canton-mcp] Bundled fallback load failed: ${err.message}`);
+    return null;
+  }
 }
 async function loadKnowledgeBase() {
   return (await fetchRemoteKB()) || (await loadCachedKB()) || (await loadLocalFallbackKB()) || {
