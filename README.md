@@ -24,6 +24,20 @@ Add to your Claude Desktop config (`../Claude/claude_desktop_config.json`):
 ```
 Then restart Claude Desktop. You should see the Canton tools in the tools menu.
 
+## Quick Install for Codex
+
+Add this MCP server to Codex:
+
+```bash
+codex mcp add canton-dev -- node /path/to/Build-on-Canton-MCP/index.js
+```
+
+Then start a new Codex session. You can confirm the server is configured with:
+
+```bash
+codex mcp list
+```
+
 ### Prerequisites
 
 - Node.js 18+
@@ -37,7 +51,7 @@ The server exposes 7 tools that Claude (or any MCP client) calls automatically b
 
 Personalized quickstart based on developer background. Triggers on "how to build on Canton" and similar. Asks the developer to select their background first then generates a guide.
 
-Backgrounds: `evm` · `solana` · `move` · `web_dev` · `enterprise` · `new_to_blockchain`
+Backgrounds: `evm` · `solana` · `sui_move` · `web_dev` · `enterprise` · `new_to_blockchain`
 
 ### `canton_lookup`
 
@@ -88,11 +102,11 @@ ZENITH{}         — Zenith EVM info
 FAQ[]            — Developer questions with code-snippet answers
 ```
 
-Users who want to contribute can submit a PR to update `knowledge-base.json`. The local fallback `src/knowledge-base.js` ships with the repo but is only used if the remote fetch and cache both fail.
+Users who want to contribute can submit a PR to update `knowledge-base.json`. The bundled knowledge base file lives at the repo root.
 
 PRs welcome for `knowledge-base.json` updates. When contributing:
 
 1. Keep links versioned (e.g., `/build/3.4/` not `/build/latest/`)
 2. Add deprecation entries for any tool being replaced
 3. Include install commands and code snippets in FAQ answers
-4. Test locally: `npx @modelcontextprotocol/inspector node src/index.js`
+4. Test locally: `npx @modelcontextprotocol/inspector node index.js`
