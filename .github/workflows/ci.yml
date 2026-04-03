@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 18
+          - 20
+          - 22
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install --no-fund --no-audit
+
+      - name: Check syntax
+        run: node --check index.js
+
+      - name: Verify package tarball
+        run: npm pack --dry-run
+
+      - name: Run MCP smoke test
+        shell: bash
+        run: |
+          node --input-type=module <<'EOF'
+          import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+          import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+
+          const transport = new StdioClientTransport({
+            command: 'node',
+            args: ['index.js'],
+            cwd: process.cwd(),
+          });
+
+          const client = new Client({ name: 'ci-smoke', version: '0.0.1' });
+
+          await client.connect(transport);
+
+          const tools = await client.listTools();
+          const resources = await client.listResources();
+
+          if (tools.tools.length !== 7) {
+            throw new Error(`Expected 7 tools, got ${tools.tools.length}`);
+          }
+
+          if (resources.resources.length < 7) {
+            throw new Error(`Expected at least 7 resources, got ${resources.resources.length}`);
+          }
+
+          await client.close();
+          EOF
