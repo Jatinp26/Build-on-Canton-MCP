@@ -266,6 +266,11 @@
       "url": "https://github.com/canton-foundation/cips/blob/main/cip-0103/cip-0103.md",
       "description": "Defines how wallets and dApps connect and interoperate on Canton Network. Both sides implement once; any compliant wallet works with any compliant dApp automatically. Covers synchronous (browser extension) and asynchronous (server-side/mobile) wallet architectures."
     },
+    "walletconnect_canton": {
+      "title": "WalletConnect Integration for Canton Guide",
+      "url": "https://docs.walletconnect.network/wallet-sdk/chain-support/canton",
+      "description": "WalletConnect has added support for Canton Network, opening up access to institutional-grade apps and tokenized real world assets to millions of users."
+    },
     "tutorial_json_api": {
       "title": "Get Started: JSON Ledger API + curl",
       "url": "https://docs.digitalasset.com/build/3.4/tutorials/json-api/canton_and_the_json_ledger_api.html",
