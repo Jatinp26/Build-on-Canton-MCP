@@ -2,7 +2,7 @@
 
 When developers use AI tools to learn Canton, they get recommended deprecated documentation links. This Local MCP Integration **solves** that. It provides a curated, remotely updated knowledge base covering Canton's Dev Stack and Guide Devs using Claude 0 to 100.
 
-> **New Release:** Extended Info to WalletConnect Integration for Canton Guide, opening up access to institutional-grade apps and tokenized real world assets to millions of users
+> **IMP NOTICE: Due to docs changing to docs.canton.network, there will be some maintaince in knowledebase, will be done by end of the week and MCP will be all 100% up Monday onwards** 
 
 ## How does it do this?
 
