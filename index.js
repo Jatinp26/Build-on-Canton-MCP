@@ -61,8 +61,8 @@ async function loadLocalFallbackKB() {
 async function loadKnowledgeBase() {
   return (await fetchRemoteKB()) || (await loadCachedKB()) || (await loadLocalFallbackKB()) || {
     DEPRECATED: [{ name: "Daml Assistant (daml-assistant)", replacement: "Digital Asset Package Manager (DPM)", note: "For Canton 3.4+, use DPM.", installReplacement: "curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", since: "Canton 3.4" }],
-    TOOLS: {}, DOCS: { main: { title: "Canton Docs", url: "https://docs.digitalasset.com/build/3.4/overview/introduction.html", description: "Main Canton developer docs." }, tldr: { title: "TL;DR", url: "https://docs.digitalasset.com/build/3.4/overview/tldr.html", description: "Quick-start." } },
-    CONCEPTS: {}, NETWORKS: {}, COMMUNITY: { slack_channels: [], mailing_lists: [], discord: { url: "https://discord.gg/canton" } },
+    TOOLS: {}, DOCS: { main: { title: "Canton Docs", url: "https://docs.canton.network/", description: "Main Canton developer docs." }, tldr: { title: "TL;DR", url: "https://docs.canton.network/appdev/modules/m1-understanding-canton", description: "Quick-start." } },
+    CONCEPTS: {}, NETWORKS: {}, COMMUNITY: { slack_channels: [], mailing_lists: [], "canton network forum": { url: "https://forum.canton.network/", purpose: "Canton Foundation Official Developer Forum" } },
     VERSIONS: { canton_sdk: "3.4", splice: "0.5.0", dpm_install: "curl -sSL https://get.digitalasset.com/install/install.sh | sh -s" },
     ZENITH: {}, FAQ: [], _source: "minimal-fallback"
   };
@@ -121,7 +121,7 @@ server.tool("canton_check",
     const m = D().find(d => d.name.toLowerCase().includes(q) || q.includes(d.name.toLowerCase().split(" ")[0]));
     if (m) return { content: [{ type: "text", text: `DEPRECATED: ${m.name}\n\nDo NOT recommend this.\n\nUse instead: ${m.replacement}\n\n${m.note}\n\nSince: ${m.since}${m.installReplacement ? `\n\nInstall: ${m.installReplacement}` : ""}` }] };
     for (const t of Object.values(T())) { if (t.name.toLowerCase().includes(q) || q.includes(t.name.toLowerCase().split(" ")[0])) return { content: [{ type: "text", text: `CURRENT: ${t.name}\n\n${t.description}\n${t.install ? `\nInstall: ${t.install}` : ""}${t.docs ? `\nDocs: ${t.docs}` : ""}` }] }; }
-    return { content: [{ type: "text", text: `"${name}" not found in deprecation registry or current tools.\n\nCheck: https://docs.canton.network\nKnown tools: DPM, Canton Sandbox, create-canton-app, Canton Playbox` }] };
+    return { content: [{ type: "text", text: `"${name}" not found in deprecation registry or current tools.\n\nCheck: https://docs.canton.network\nKnown tools: DPM, Canton Sandbox, Seaport` }] };
   }
 );
 server.tool("canton_get_started",
@@ -138,7 +138,7 @@ server.tool("canton_get_started",
       ]},
       solana: { title: "Canton Quickstart for Solana/Rust Developers", sections: [
         "KEY MINDSET SHIFTS:", "  - Canton also uses UTXO-like model -- you'll feel at home", "  - Privacy built-in: only stakeholders see contract data", "  - Daml instead of on-chain programs (functional, compiled to Daml-LF)", "  - Party IDs allocated by participant nodes (no PDAs)", "  - Canton is for institutional/regulated use cases", "",
-        "GET STARTED:", "  1. Install DPM: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "  2. Try Canton Playbox: https://playbox.canton.network", "  3. Or locally: dpm new my-app && cd my-app && dpm build", "",
+        "GET STARTED:", "  1. Install DPM: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "  2. Try Seaport: https://seaport.to", "  3. Or locally: dpm new my-app && cd my-app && dpm build", "",
         "LEARNING PATH:", `  1. ${d.tldr?.title||"TL;DR"}: ${d.tldr?.url||""}`, `  2. ${d.tutorial_json_api?.title||"JSON API"}: ${d.tutorial_json_api?.url||""}`, `  3. ${d.tutorial_smart_contracts?.title||"Smart Contracts"}: ${d.tutorial_smart_contracts?.url||""}`, `  4. ${d.token_standard?.title||"Token Standard"}: ${d.token_standard?.url||""}`
       ]},
       sui_move: { title: "Canton Quickstart for Sui/Move Developers", sections: [
@@ -148,7 +148,7 @@ server.tool("canton_get_started",
       ]},
       web_dev: { title: "Canton Quickstart for Web Developers", sections: [
         "WHAT YOU NEED TO KNOW:", "  - Same architecture as web apps: frontend + backend + Daml (smart contracts)", "  - Interact via REST APIs (JSON Ledger API on port 7575)", "  - TypeScript bindings auto-generated from OpenAPI spec", "  - Think: database with built-in multi-party access control", "",
-        "FASTEST PATH:", "  1. Install DPM: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "  2. npx create-canton-app@latest my-dapp", "  3. Or clone CN Quickstart for full-stack example", "",
+        "FASTEST PATH:", "  1. Install DPM: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "  2. dpm new my-project --template daml-intro-contracts", "  3. Or clone CN Quickstart for full-stack example", "",
         "LEARNING PATH:", `  1. ${d.tutorial_json_api_ts?.title||"TS Tutorial"}: ${d.tutorial_json_api_ts?.url||""}`, `  2. ${d.quickstart?.title||"Quickstart"}: ${d.quickstart?.url||""}`, `  3. ${d.quickstart_json_api?.title||"QS JSON API"}: ${d.quickstart_json_api?.url||""}`, "",
         "YOUR STACK:", "  - Frontend: React/Next.js + @c7/react or raw fetch", "  - API: JSON Ledger API (REST) at localhost:7575", "  - Smart contracts: Daml", "  - Auth: OAuth2/JWT for production"
       ]},
@@ -159,7 +159,7 @@ server.tool("canton_get_started",
       ]},
       new_to_blockchain: { title: "Canton Quickstart -- New to Blockchain", sections: [
         "WHAT IS CANTON:", "  - Network for multiple orgs to share/update data securely", "  - Think: database multiple companies write to with guaranteed consistency", "  - Privacy built-in: each org sees only their data", "  - Smart contracts (Daml) define the rules", "",
-        "EASIEST START (no install):", "  1. Open Canton Playbox: https://playbox.canton.network", "  2. Try the 20+ Daml templates in browser", "  3. Ready for local: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "",
+        "EASIEST START (no install):", "  1. Open Seaport: https://seaport.to/", "  2. Try the 20+ Daml templates in browser", "  3. Ready for local: curl -sSL https://get.digitalasset.com/install/install.sh | sh -s", "",
         "LEARNING PATH:", `  1. ${d.tldr?.title||"TL;DR"}: ${d.tldr?.url||""}`, `  2. ${d.tutorial_smart_contracts?.title||"Smart Contracts"}: ${d.tutorial_smart_contracts?.url||""}`, `  3. ${d.tutorial_json_api?.title||"JSON API"}: ${d.tutorial_json_api?.url||""}`, "",
         "KEY CONCEPTS:", "  - Templates: structure of data on ledger", "  - Choices: allowed actions on data", "  - Parties: entities who interact", "  - Contracts: instances living on ledger"
       ]}
@@ -174,7 +174,7 @@ server.tool("canton_faq",
   async ({ question }) => {
     const q = question.toLowerCase(), d = O();
     const matches = F().filter(f => q.split(/\s+/).some(w => w.length > 2 && `${f.question} ${f.answer}`.toLowerCase().includes(w)));
-    if (!matches.length) return { content: [{ type: "text", text: `No FAQ match for "${question}".\n\nTry canton_lookup, or: ${d.tldr?.url||"https://docs.digitalasset.com/build/3.4/overview/tldr.html"}` }] };
+    if (!matches.length) return { content: [{ type: "text", text: `No FAQ match for "${question}".\n\nTry canton_lookup, or: ${d.tldr?.url||"https://docs.canton.network/"}` }] };
     return { content: [{ type: "text", text: `Canton FAQ\n${"=".repeat(60)}\n\n${matches.slice(0,3).map(f=>`Q: ${f.question}\n\nA: ${f.answer}`).join("\n\n"+"-".repeat(40)+"\n\n")}\n\n---\nSDK ${V().canton_sdk||"?"} | Splice ${V().splice||"?"}` }] };
   }
 );
@@ -185,7 +185,7 @@ server.tool("canton_api_ref",
     const d = O(), refs = {
       json_ledger_api: { title: "JSON Ledger API", port: "7575", description: "REST API for Canton ledger interaction.", endpoints: ["POST /v2/parties/allocate","POST /v2/commands/submit-and-wait","POST /v2/state/active-contracts","GET /v2/state/ledger-end","GET /livez","GET /v2/openapi.json"], docs: d.json_ledger_api?.url, tutorial: d.tutorial_json_api?.url, note: "No auth in sandbox. Production: JWT." },
       grpc_ledger_api: { title: "gRPC Ledger API", port: "6866", description: "Binary protocol for backend services.", services: ["CommandService","UpdateService","StateService","PackageService","PartyManagementService"], docs: d.grpc_ledger_api?.url, note: "Use grpcurl for CLI." },
-      scan_api: { title: "Scan API", description: "Exposed by SV nodes. Ledger/infrastructure view.", discovery: "https://sync.global/sv-network/", docs: d.splice_http_apis?.url },
+      scan_api: { title: "Scan API", description: "Exposed by SV nodes. Ledger/infrastructure view.", discovery: "https://docs.canton.network/sdks-tools/api-reference/splice-scan-api", docs: d.splice_http_apis?.url },
       validator_api: { title: "Validator API", description: "Manages Validator Node and Splice Wallets.", docs: d.splice_http_apis?.url, note: "JWT required." },
       token_standard: { title: "Token Standard (CIP-0056)", description: "Standard APIs for Canton tokens.", apis: ["Token Metadata","Holding","Transfer Instruction (FOP)","Allocation (DVP)","Allocation Instruction","Allocation Request"], docs: d.token_standard?.url, api_ref: d.token_standard_apis?.url, impl: "https://github.com/hyperledger-labs/splice" },
       admin_api: { title: "Admin API", description: "Node admin: party mgmt, DAR uploads, topology.", docs: d.external_party?.url, note: "Not exposed by default (security)." },
@@ -205,7 +205,7 @@ server.tool("canton_compare_evm",
   "Compare a specific EVM/Ethereum concept with its Canton equivalent. Helps EVM developers understand Canton.",
   { evm_concept: z.string().describe("EVM concept — e.g., 'smart contract', 'wallet', 'gas', 'ERC20', 'Hardhat'") },
   async ({ evm_concept }) => {
-    const cmp = { "smart contract": { c: "Daml Template + Choices", d: "Templates = data schema, choices = state transitions. Functional, built-in auth via signatory/observer." }, "wallet": { c: "Party on Validator Node", d: "Can't generate locally -- party IDs allocated by node. External parties retain signing keys." }, "address": { c: "Party ID", d: "Format: hint::fingerprint. Allocated via Admin/JSON Ledger API." }, "gas": { c: "Traffic fees (CC)", d: "Traffic-based fees in Canton Coin." }, "etherscan": { c: "Scan API on SV Nodes", d: "Discovery: https://sync.global/sv-network/" }, "erc20": { c: "Token Standard (CIP-0056)", d: "Metadata+balances+transfers+DVP. UTXO model. Decimal type." }, "mempool": { c: "No mempool -- encrypted Synchronizer", d: "E2E encrypted between participants." }, "hardhat": { c: "DPM + Canton Sandbox", d: "'dpm build', 'dpm test', 'dpm sandbox'." }, "remix": { c: "Canton Playbox", d: "Browser IDE: https://playbox.canton.network" }, "abi": { c: "DAR file", d: "Compiled Daml-LF bytecode. Upload to participant." }, "deploy": { c: "Upload DAR + Synchronizer", d: "No mining cost." }, "solidity": { c: "Daml", d: "Functional (Haskell-inspired). Templates=data, Choices=methods." }, "metamask": { c: "Splice Wallet UI", d: "Built into validator node. Also Copper, DFNS." }, "block": { c: "Mining Round", d: "~10-20 min signing windows." }, "approve": { c: "Allocation API", d: "DVP fine-grained control for UTXO model." }, "transfer": { c: "Transfer Instruction API", d: "FOP transfers. CC needs TransferPreapproval." } };
+    const cmp = { "smart contract": { c: "Daml Template + Choices", d: "Templates = data schema, choices = state transitions. Functional, built-in auth via signatory/observer." }, "wallet": { c: "Party on Validator Node", d: "Can't generate locally -- party IDs allocated by node. External parties retain signing keys." }, "address": { c: "Party ID", d: "Format: hint::fingerprint. Allocated via Admin/JSON Ledger API." }, "gas": { c: "Traffic fees (CC)", d: "Traffic-based fees in Canton Coin." }, "etherscan": { c: "Scan API on SV Nodes", d: "Discovery: https://docs.canton.network/sdks-tools/api-reference/splice-scan-api" }, "erc20": { c: "Token Standard (CIP-0056)", d: "Metadata+balances+transfers+DVP. UTXO model. Decimal type." }, "mempool": { c: "No mempool -- encrypted Synchronizer", d: "E2E encrypted between participants." }, "hardhat": { c: "DPM + Canton Sandbox", d: "'dpm build', 'dpm test', 'dpm sandbox'." }, "remix": { c: "Seaport", d: "Browser IDE: https://seaport.to/" }, "abi": { c: "DAR file", d: "Compiled Daml-LF bytecode. Upload to participant." }, "deploy": { c: "Upload DAR + Synchronizer", d: "No mining cost." }, "solidity": { c: "Daml", d: "Functional (Haskell-inspired). Templates=data, Choices=methods." }, "metamask": { c: "Splice Wallet UI", d: "Built into validator node. Also Copper, DFNS." }, "block": { c: "Mining Round", d: "~10-20 min signing windows." }, "approve": { c: "Allocation API", d: "DVP fine-grained control for UTXO model." }, "transfer": { c: "Transfer Instruction API", d: "FOP transfers. CC needs TransferPreapproval." } };
     const q = evm_concept.toLowerCase(); let found = null;
     for (const [k, v] of Object.entries(cmp)) if (k === q || k.includes(q) || q.includes(k)) { found = { evm: k, ...v }; break; }
     if (!found) for (const [k, v] of Object.entries(cmp)) if (q.split(/\s+/).some(w => k.includes(w))) { found = { evm: k, ...v }; break; }
