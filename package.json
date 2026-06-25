@@ -1,20 +1,42 @@
 {
-  "name": "canton-mcp-server",
-  "version": "1.0.0",
-  "description": "Canton Network MCP Server",
+  "name": "@canton-network-devs/canton-mcp-server",
+  "version": "2.2.1",
+  "description": "Canton Network MCP Server for Claude Desktop",
   "type": "module",
-  "main": "src/index.js",
+  "main": "index.js",
   "bin": {
-    "canton-mcp-server": "src/index.js"
+    "canton-mcp-server": "index.js"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
-  "keywords": ["canton", "daml", "mcp", "developer-tools", "blockchain", "canton-network"],
-  "author": "Canton Foundation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canton-network-devs/Build-on-Canton-MCP.git"
+  },
+  "bugs": {
+    "url": "https://github.com/canton-network-devs/Build-on-Canton-MCP/issues"
+  },
+  "homepage": "https://github.com/canton-network-devs/Build-on-Canton-MCP#readme",
+  "keywords": [
+    "canton",
+    "daml",
+    "mcp",
+    "model-context-protocol",
+    "developer-tools",
+    "blockchain",
+    "canton-network",
+    "claude"
+  ],
+  "author": "Jatin, DevRel, Canton Foundation",
   "license": "Apache-2.0",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1"
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "express": "^4.21.2",
+    "zod": "^3.23.8"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
