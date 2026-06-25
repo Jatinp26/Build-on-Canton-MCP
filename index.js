@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -7,8 +8,6 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-
-// remote KB config
 const KNOWLEDGE_BASE_URL = "https://raw.githubusercontent.com/canton-network-devs/Build-on-Canton-MCP/refs/heads/main/knowledge-base.json";
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 const CACHE_DIR = join(homedir(), ".canton-mcp");
@@ -22,7 +21,7 @@ async function fetchRemoteKB() {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 10000);
-    const res = await fetch(KNOWLEDGE_BASE_URL, { signal: ctrl.signal, headers: { "User-Agent": "canton-mcp-server/1.0.0" } });
+const res = await fetch(KNOWLEDGE_BASE_URL, { signal: ctrl.signal, headers: { "User-Agent": "@canton-network-devs/canton-mcp-server/2.0.0" } });
     clearTimeout(t);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -241,4 +240,77 @@ async function main() {
   await server.connect(new StdioServerTransport());
   console.error("[canton-mcp] Server running on stdio");
 }
-main().catch(e => { console.error("[canton-mcp] Fatal:", e); process.exit(1); });
+
+async function runInstaller() {
+  const { readFile: rf, writeFile: wf, mkdir: md } = await import("node:fs/promises");
+  const { existsSync: ex } = await import("node:fs");
+  const { homedir: hd } = await import("node:os");
+  const { join: pj, dirname: dn } = await import("node:path");
+  const { execSync: es } = await import("node:child_process");
+  const { createInterface } = await import("node:readline");
+  const R = "\x1b[0m", B = "\x1b[1m", G = "\x1b[32m", Y = "\x1b[33m", E = "\x1b[31m", C = "\x1b[36m", D = "\x1b[2m";
+  const ok  = m => console.log(`${G}✓${R} ${m}`);
+  const warn= m => console.log(`${Y}⚠${R}  ${m}`);
+  const err = m => console.log(`${E}✗${R} ${m}`);
+  const info= m => console.log(`${C}→${R} ${m}`);
+  function getConfigPath() {
+    const home = hd();
+    if (process.platform === "darwin") return pj(home, "Library", "Application Support", "Claude", "claude_desktop_config.json");
+    if (process.platform === "win32")  return pj(process.env.APPDATA || pj(home, "AppData", "Roaming"), "Claude", "claude_desktop_config.json");
+    return pj(home, ".config", "Claude", "claude_desktop_config.json");
+  }
+
+  function getNpxPath() {
+    try {
+      const cmd = process.platform === "win32" ? "where npx" : "which npx";
+      return es(cmd, { encoding: "utf-8" }).trim().split("\n")[0].trim() || "npx";
+    } catch { return "npx"; }
+  }
+
+  function ask(q) {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    return new Promise(res => rl.question(`${Y}?${R} ${q} ${D}(y/n)${R} `, a => { rl.close(); res(a.trim().toLowerCase().startsWith("y")); }));
+  }
+  console.log(`\n${B}Canton Network MCP Claude Installer${R}`);
+  if (parseInt(process.versions.node) < 18) {
+    err(`Node.js 18+ required (you have ${process.versions.node}). Download: https://nodejs.org`);
+    process.exit(1);
+  }
+  ok(`Node.js ${process.versions.node}`);
+  const configPath = getConfigPath();
+  info(`Claude Desktop config: ${configPath}`);
+  if (!ex(dn(configPath))) {
+    warn("Claude Desktop config folder not found.");
+    warn("Download Claude Desktop first: https://claude.ai/download");
+    const go = await ask("Create config folder and continue anyway?");
+    if (!go) { info("Aborted. Install Claude Desktop then re-run."); process.exit(0); }
+  }
+  let config = {};
+  try {
+    config = JSON.parse(await rf(configPath, "utf-8"));
+  } catch (e) {
+    if (e.code !== "ENOENT") { err(`Config has invalid JSON: ${configPath}\nFix it manually then re-run.`); process.exit(1); }
+  }
+  const existing = config?.mcpServers?.["canton-dev"];
+  if (existing) {
+    warn(`Canton MCP already configured: ${D}${[existing.command, ...(existing.args||[])].join(" ")}${R}`);
+    const ow = await ask("Overwrite with latest config?");
+    if (!ow) { ok("Nothing changed. You're all set!"); process.exit(0); }
+  }
+  const npxPath = getNpxPath();
+  config.mcpServers = config.mcpServers || {};
+  config.mcpServers["canton-dev"] = { command: npxPath, args: ["-y", "@canton-network-devs/canton-mcp-server"] };
+  const dir = dn(configPath);
+  if (!ex(dir)) await md(dir, { recursive: true });
+  await wf(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+  console.log("");
+  ok(`Config updated: ${configPath}`);
+  console.log(`\n${B}Next step:${R}`);
+  info("Restart Claude Desktop and Canton MCP will appear automatically.\n");
+}
+const arg = process.argv[2];
+if (arg === "install") {
+  runInstaller().catch(e => { console.error("Installer failed:", e.message); process.exit(1); });
+} else {
+  main().catch(e => { console.error("[canton-mcp] Fatal:", e); process.exit(1); });
+}
